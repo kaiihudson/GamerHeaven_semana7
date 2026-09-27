@@ -1,19 +1,20 @@
 package com.duoc.gamerheaven.service;
 
-import com.duoc.gamerheaven.model.Videojuego;
-import com.duoc.gamerheaven.repository.VideojuegoRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.duoc.gamerheaven.model.Videojuego;
+import com.duoc.gamerheaven.repository.VideojuegoRepository;
 
 @Service
 public class VideojuegoService {
 
     @Autowired
     private VideojuegoRepository videojuegoRepository;
-
+    
 
     public List<Videojuego> findAll() {
         return videojuegoRepository.findAll();
@@ -23,14 +24,12 @@ public class VideojuegoService {
         return videojuegoRepository.findById(id);
     }
 
-    public Videojuego findByTitulo(String titulo) {
-        String normalizeTitulo = titulo.toLowerCase();
-        return videojuegoRepository.findByTitulo(normalizeTitulo);
+    public Optional<Videojuego> findByTitulo(String titulo) {
+        return videojuegoRepository.findByTituloIgnoreCase(titulo);
     }
 
-    public Optional<List<Videojuego>> findAllByPlataforma(String plataforma) {
-        String normalizePlataforma = plataforma.toLowerCase();
-        return Optional.ofNullable(videojuegoRepository.findAllByPlataforma(normalizePlataforma));
+    public List<Videojuego> findAllByPlataforma(String plataforma) {
+        return videojuegoRepository.findAllByPlataformaIgnoreCase(plataforma);
     }
 
     public Videojuego create(Videojuego videojuego) {
@@ -52,10 +51,11 @@ public class VideojuegoService {
         }
     }
 
-    public void delete(int id) {
-        if (videojuegoRepository.existsById(id)) {
-            return;
+    public boolean delete(int id) {
+        if (!videojuegoRepository.existsById(id)) {
+            return false;
         }
         videojuegoRepository.deleteById(id);
+        return true;
     }
 }

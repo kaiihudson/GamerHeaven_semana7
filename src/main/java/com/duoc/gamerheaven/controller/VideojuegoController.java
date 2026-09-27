@@ -1,23 +1,28 @@
 package com.duoc.gamerheaven.controller;
 
-import com.duoc.gamerheaven.model.Videojuego;
-import com.duoc.gamerheaven.service.VideojuegoService;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
+import com.duoc.gamerheaven.model.Videojuego;
+import com.duoc.gamerheaven.service.VideojuegoService;
 
 @RestController
 @RequestMapping("/api/videojuegos")
 public class VideojuegoController {
 
-    private final VideojuegoService videojuegoService;
-
-    public VideojuegoController(VideojuegoService videojuegoService) {
-        this.videojuegoService = videojuegoService;
-    }
+    @Autowired
+    private VideojuegoService videojuegoService;
 
     @GetMapping
     public ResponseEntity<List<Videojuego>> findAll() {
@@ -25,23 +30,22 @@ public class VideojuegoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Videojuego> findById(@PathVariable String id) {
-        int parsedId = Integer.parseInt(id);
-        return videojuegoService.findById(parsedId)
+    public ResponseEntity<Videojuego> findById(@PathVariable int id) {
+        return videojuegoService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/titulo/{titulo}")
     public ResponseEntity<Videojuego> findByTitulo(@PathVariable String titulo) {
-        return ResponseEntity.ok(videojuegoService.findByTitulo(titulo));
+        return videojuegoService.findByTitulo(titulo)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/plataforma/{plataforma}")
     public ResponseEntity<List<Videojuego>> findByPlataforma(@PathVariable String plataforma) {
-        return videojuegoService.findAllByPlataforma(plataforma)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(videojuegoService.findAllByPlataforma(plataforma));
     }
 
     @PostMapping
@@ -51,15 +55,16 @@ public class VideojuegoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Videojuego> update(@PathVariable String id, @RequestBody Videojuego videojuego) {
-        int parsedId = Integer.parseInt(id);
-        Optional<Videojuego> updated = videojuegoService.update(parsedId, videojuego);
-        return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Videojuego> update(@PathVariable int id, @RequestBody Videojuego videojuego) {
+        return videojuegoService.update(id, videojuego)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable String id) {
-        int parsedId = Integer.parseInt(id);
-        videojuegoService.delete(parsedId);
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        return videojuegoService.delete(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }
